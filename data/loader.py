@@ -1,7 +1,7 @@
 import numpy as np
 import scipy
 import json
-import sklearn.cross_validation
+import sklearn.data_selection
 
 from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
@@ -53,7 +53,7 @@ def split_data(X, plots, y):
     # split dev/test
     test_ratio = 0.2
     X_tr, X_te, y_tr, y_te, plots_tr, plots_te = \
-        sklearn.cross_validation.train_test_split(X_train, y_train, plots_train, test_size = test_ratio)
+        sklearn.data_selection.train_test_split(X_train, y_train, plots_train, test_size = test_ratio)
 
     return np.array(X_tr.todense()), np.array(X_te.todense()), np.array(X_test.todense()), \
         np.array(y_tr), np.array(y_te), np.array(y_test), plots_tr, plots_te, plots_test
