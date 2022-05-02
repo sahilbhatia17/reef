@@ -1,10 +1,8 @@
 import numpy as np
 import scipy
 import json
-import sklearn.model_selection
 
 from scipy import sparse
-from sklearn.feature_extraction.text import CountVectorizer
 
 def parse_file(filename):
 
@@ -38,6 +36,7 @@ def parse_file(filename):
     return np.array(plots), np.array(gt)
 
 def split_data(X, plots, y):
+    import sklearn.model_selection
     np.random.seed(1234)
     num_sample = np.shape(X)[0]
     num_test = 500
@@ -75,6 +74,8 @@ class DataLoader(object):
         return common_idx
 
     def load_data(self, dataset, data_path='./data/imdb/'):
+        from sklearn.feature_extraction.text import CountVectorizer
+
         #Parse Files
         plots, labels = parse_file(data_path+'budgetandactors.txt')
         #read_plots('imdb_plots.tsv')
