@@ -1,35 +1,44 @@
 from operator import index
 from textwrap import wrap
 import tkinter as tk
+from tkinter import *
 from data.loader import DataLoader, parse_file
 from program_synthesis.heuristic_generator import HeuristicGenerator
 import numpy as np
 import pickle as pkl
+from clustering import generate_clusters
 
 '''
 All selection methods need the following type signature
 index to points will be of the same type as the self.index_to_points object in the UI class.
 '''
-def random_batch_select(index_to_points, batch_size):
+def random_batch_select(index_to_points, batch_size, iteration):
     selected_vals = np.random.choice(list(index_to_points.keys()), size=batch_size, replace=False)
     return [(key, index_to_points[key]) for key in selected_vals]
+def active_sampling(index_to_points, batch_size, iteration):
+    selected_vals = np.arange(iteration*batch_size, (iteration+1)*batch_size)
+    return [(key, index_to_points[key]) for key in selected_vals]
+
 
 class SnubaBaseUI:
 
-    def __init__(self, path_to_dataset="./data/imdb/budgetandactors.txt", batch_size=5, selection_method=None, minimum_points=50,
+    def __init__(self, path_to_dataset="./data/imdb/budgetandactors.txt", path_to_embeddings="./data/imdb/corpus_embedding.pickle", batch_size=5, selection_method=active_sampling, minimum_points=50,
                 outfilepath="labeled_datapoints"):
         self.gui = tk.Tk()
         self.gui.geometry("1200x700")
         #load dataset
         self.batch_size = batch_size
         self.selection_method = random_batch_select if selection_method is None else selection_method
-
         plots, _ = parse_file(path_to_dataset)
-        self.index_to_points = dict(enumerate(plots))
+        if self.selection_method == random_batch_select:
+            self.index_to_points = dict(enumerate(plots))
+        else:
+            self.index_to_points = dict(enumerate(generate_clusters(path_to_embeddings, plots)))
         self.labeled_points = []
         self.total_num_datapoints = len(plots)
         self.minimum_required_points = minimum_points
         self.outfilepath = outfilepath
+        self.iteration = 0
         self.initialize_ui_fields()
         self.update_metrics()
 
@@ -41,6 +50,7 @@ class SnubaBaseUI:
         # build out the UI using tkinter
         self.current_frame = tk.Frame(self.gui, width=600, height=700)
         self.current_frame.pack(side = tk.LEFT)
+        label = Label(self.current_frame, text="Data Points", font=('Helvetica', 18, 'bold')).pack()
         self.labeled_frame = tk.Frame(self.gui, width=600, height=700)
         self.labeled_frame.pack(side = tk.RIGHT)
 
@@ -60,6 +70,7 @@ class SnubaBaseUI:
             self.answer_frames.append(frame)
         self.labeled_datapoints_frame = tk.Listbox(self.labeled_frame, width=65, height=35)
         self.labeled_datapoints_frame.pack(side = tk.TOP, anchor=tk.NW)
+
         self.labeled_datapoints_scrollbar = tk.Scrollbar(self.labeled_frame)
         self.labeled_datapoints_scrollbar.pack(side = tk.RIGHT, fill=tk.BOTH)
         self.labeled_datapoints_frame.config(yscrollcommand = self.labeled_datapoints_scrollbar.set)
@@ -110,7 +121,8 @@ class SnubaBaseUI:
         
     
     def display_data_batch(self):
-        self.current_index_data_pairs = self.selection_method(self.index_to_points, self.batch_size)
+        self.current_index_data_pairs = self.selection_method(self.index_to_points, self.batch_size, self.iteration)
+        self.iteration += 1 
         display_string = ""
         # display the selected datapoints
         cntr = 1

@@ -8,3 +8,4 @@
 .vscode/
 data/mobile_mb/._mobile_data.csv
 data/mobile_mb/mobile_data.csv
+.DS_Store
