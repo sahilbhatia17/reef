@@ -151,7 +151,7 @@ class SnubaBaseUI:
             label = "ROMANCE" if current_var.get() == -1 else "ACTION"
             if idx in self.index_to_points:
                 _ = self.index_to_points.pop(idx)
-                self.labeled_points.append((idx, plot))
+                self.labeled_points.append((idx, plot, current_var.get()))
                 # update and display these in the right region
                 self.labeled_datapoints_frame.insert(
                     tk.END, "{}. {} \n LABEL: {}".format(idx, plot, label))
