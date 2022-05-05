@@ -37,12 +37,16 @@ class SnubaBaseUI:
         if self.selection_method == random_batch_select:
             self.index_to_points = dict(enumerate(plots))
         else:
-            self.index_to_points = dict(enumerate(generate_clusters(path_to_embeddings, plots)))
+            cluster_data, self.cluster_choice = generate_clusters(path_to_embeddings, plots)
+            self.index_to_points = dict(enumerate(cluster_data))
+
         self.labeled_points = []
         self.total_num_datapoints = len(plots)
         self.minimum_required_points = minimum_points
         self.outfilepath = outfilepath
         self.iteration = 0
+        self.num_clusters = 50
+        
         self.initialize_ui_fields()
         self.update_metrics()
 
@@ -126,9 +130,17 @@ class SnubaBaseUI:
         self.metrics_string = ""
         self.current_ratio = "Number of data points labeled so far (out of total): {}/{}\n".format(
             len(self.labeled_points), self.total_num_datapoints)
+        
         self.metrics_string += self.current_ratio
+        if self.selection_method == active_sampling:
+            labeled_indexes = [l[0] for l in self.labeled_points]
+            cluster_coverage = [self.cluster_choice[i] for i in labeled_indexes]
+            cluster_coverage = list(set(cluster_coverage))
+            self.coverage = "Percentage of clusters covered so far: {}\n".format((len(cluster_coverage)/self.num_clusters)*100)
+            self.metrics_string += self.coverage
         # if there are additional metrics, include them here and add them to self.metrics_string.
         self.metrics_frame["text"] = self.metrics_string
+
 
     def add_and_display_labeled_indexes(self):
         for curidx, (idx, plot) in enumerate(self.current_index_data_pairs):

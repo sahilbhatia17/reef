@@ -23,13 +23,15 @@ def parse_file(filename):
         if 'Action' in genre and 'Romance' in genre:
             continue
         elif 'Action' in genre:
-            plots = plots+[movie['Plot']]
-            gt.append(1)
-            idx.append(i)
+            if movie['Plot'] != 'N/A':
+                plots = plots+[movie['Plot']]
+                gt.append(1)
+                idx.append(i)
         elif 'Romance' in genre:
-            plots = plots+[movie['Plot']]
-            gt.append(-1)
-            idx.append(i)
+            if movie['Plot'] != 'N/A':
+                plots = plots+[movie['Plot']]
+                gt.append(-1)
+                idx.append(i)
         else:
             continue  
     
