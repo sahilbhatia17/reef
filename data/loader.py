@@ -1,8 +1,22 @@
 import numpy as np
 import scipy
 import json
+import pickle as pkl
 
 from scipy import sparse
+
+def parse_user_data(userfilename):
+    # load the file
+    with open(userfilename, "rb") as ufl:
+        user_info = pkl.load(ufl)
+        # kinda hacky, but hopefully will work for now
+        if isinstance(user_info[-1], str):
+            user_info = user_info[0]
+    # operate with the tuple sequence collected in the user study
+    user_indices = []
+    for idx, plot, label in user_info:
+        user_indices.append(idx)
+    return np.array(idx)
 
 def parse_file(filename):
 
@@ -99,3 +113,20 @@ class DataLoader(object):
         return train_primitive_matrix[:,common_idx], val_primitive_matrix[:,common_idx], test_primitive_matrix[:,common_idx], \
             np.array(train_ground), np.array(val_ground), np.array(test_ground), \
             train_plots, val_plots, test_plots
+    
+    def load_data_from_user(self, dataset, user_path, data_path='./data/imdb/'):
+        from sklearn.feature_extraction.text import CountVectorizer
+
+        #Parse Files
+        plots, labels = parse_file(data_path+'budgetandactors.txt')
+        #read_plots('imdb_plots.tsv')
+
+        #Featurize Plots  
+        vectorizer = CountVectorizer(min_df=1, binary=True, \
+            decode_error='ignore', strip_accents='ascii', ngram_range=(1,2))
+        X = vectorizer.fit_transform(plots)
+        valid_feats = np.where(np.sum(X,0)> 2)[1]
+        X = X[:,valid_feats]
+
+        labeled_indices = parse_user_data(user_path)
+        
