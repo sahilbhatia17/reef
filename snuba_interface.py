@@ -37,7 +37,8 @@ class SnubaBaseUI:
         if self.selection_method == random_batch_select:
             self.index_to_points = dict(enumerate(plots))
         else:
-            cluster_data, self.cluster_choice = generate_clusters(path_to_embeddings, plots)
+            # mode can be ['random', 'sorted-inc', 'sorted-dec', 'sorted-alt']
+            cluster_data, self.cluster_choice = generate_clusters(path_to_embeddings, plots, 'random')
             self.index_to_points = dict(enumerate(cluster_data))
 
         self.labeled_points = []
