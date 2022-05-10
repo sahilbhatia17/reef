@@ -57,7 +57,7 @@ def generate_clusters(path_to_embeddings, plots, mode = 'random'):
 					else:
 						cluster_data.append(cluster_dict[k].pop(-1))
 						bool_dir[k] == 1
-					cluster_choice.append(k)
+				cluster_choice.append(k)
 			else:
 				clusters_complete.append(k)
 				clusters_complete = list(set(clusters_complete))
